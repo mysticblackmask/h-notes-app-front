@@ -1,7 +1,6 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import classes from "./Nav.module.scss";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { NotesContext } from "../../context/NoteContext";
 import {
   ArrowForward,
   Add,
@@ -41,7 +40,6 @@ interface navLinkDataType {
 export const Nav = () => {
   const id = useLocation();
   const [hiddenNav, setHiddenNav] = useToggle();
-  const { notes, trashNotes, favouriteNotes } = useContext(NotesContext);
   const { localTheme: themeState } = getTheme();
   const [theme, setTheme] = useToggle(themeState);
   const dispatch = useDispatch();
@@ -80,19 +78,16 @@ export const Nav = () => {
     {
       title: "Notes",
       url: "/notes",
-      length: notes.length,
       icon: <FormatListBulleted className={classes.icon} />,
     },
     {
       title: "Trash",
       url: "/trash",
-      length: trashNotes.length,
       icon: <DeleteOutline className={classes.icon} />,
     },
     {
       title: "Favourite",
       url: "/favourite",
-      length: favouriteNotes.length,
       icon: <FavoriteBorder className={classes.icon} />,
     },
   ];

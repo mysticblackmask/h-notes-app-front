@@ -25,9 +25,8 @@ export const useIsMenu = () => {
     const is_login = localStorage.getItem("access_token");
     if (!is_login || isTokenExpired(is_login)) {
       const refresh = refreshToken();
-      if (!refresh) {
-        if (pathname !== "/") navigate("/login");
-      }
+      console.log(refresh);
+      if (!refresh && pathname !== "/") navigate("/login");
     }
     if (is_login) {
       dispatch(handleLogin());

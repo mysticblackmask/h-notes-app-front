@@ -1,20 +1,25 @@
-import { useContext, useId } from "react";
 import classes from "./NoteItem.module.scss";
 import { motion } from "framer-motion";
 import { MainButton } from "../ui/MainButton";
 import { SecondaryButton } from "../ui/SecondaryButton";
 import { Link } from "react-router-dom";
-import { ProfileLink } from "../ui/ProfileLink";
 import "react-toastify/dist/ReactToastify.css";
 
 type NoteItemProps = {
-  id: number;
+  id: string;
   readonly title: string;
   readonly text: string;
   readonly favourite: boolean;
+  trashed: (id: string) => void;
 };
 
-export const NoteItem = ({ id, title, text, favourite }: NoteItemProps) => {
+export const NoteItem = ({
+  id,
+  title,
+  text,
+  favourite,
+  trashed,
+}: NoteItemProps) => {
   return (
     <motion.li
       layout
@@ -36,7 +41,11 @@ export const NoteItem = ({ id, title, text, favourite }: NoteItemProps) => {
           <MainButton title="Details" />
         </Link>
 
-        {/* <SecondaryButton onClick={deleteHandler} type="button" title="Delete" /> */}
+        <SecondaryButton
+          onClick={() => trashed(id)}
+          type="button"
+          title="Delete"
+        />
       </div>
     </motion.li>
   );
