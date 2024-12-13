@@ -31,7 +31,7 @@ export const trashedNotes = () => {
 };
 
 export const deleteNotes = () => {
-  return API.delete<any>(`notes/notes/delete/`);
+  return API.delete<any>(`notesapp/notes/delete/`);
 };
 
 export const deleteNote = (id: string) => {
@@ -39,7 +39,7 @@ export const deleteNote = (id: string) => {
 };
 
 export const createNote = (data: any) => {
-  return API.post<any>("notesapp/notes/", data, {
+  return API.post<any>("notesapp/notes/create/", data, {
     headers: {
       "Content-Type": "multipart/form-data",
     },

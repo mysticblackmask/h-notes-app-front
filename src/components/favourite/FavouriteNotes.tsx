@@ -7,26 +7,23 @@ import empty from "../../img/favourite.svg";
 import { FavouriteNoteItem } from "./FavouriteNoteItem";
 import { Heading } from "../ui/Heading";
 import { pinNote, pinNotes } from "../../apis/notes";
+import Loading from "../../pages/error/Loading";
 
 export const FavouriteNotes = () => {
   const [notes, setNotes] = useState({ results: [], total_count: 0 });
-
   const readNotes = () => {
     pinNotes(0, true)
       .then((res) => setNotes(res.data))
       .catch((err) => console.log(err.response));
   };
-
   useEffect(() => {
     readNotes();
   }, []);
-
   const notePinned = (id: string) => {
     pinNote(id, false)
       .then((res) => readNotes())
       .catch((err) => console.log(err.response));
   };
-
   const emptyContent = (
     <div className={classes.emptyWrapper}>
       <img src={empty} alt="empty" />
@@ -51,7 +48,6 @@ export const FavouriteNotes = () => {
           <span className={classes.favorite}>{notes.results.length}</span>
         </Heading>
       </div>
-
       <ul className={classes.list}>
         <AnimatePresence>
           {notes.results.map((note: any, index: number) => {
@@ -68,7 +64,6 @@ export const FavouriteNotes = () => {
           })}
         </AnimatePresence>
       </ul>
-
       {!notes.results.length && emptyContent}
     </div>
   );

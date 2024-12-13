@@ -37,31 +37,46 @@ export const AuthForm = () => {
   const dispatch = useDispatch();
 
   const submitRegister: SubmitHandler<Inputs> = (formData) => {
-    if (locationRegister) {
-      setIsLoading(true);
-      regist(formData.name, formData.surname, formData.email, formData.password)
-        .then((res) => {
-          successMessage(res.data.message);
-          navigate("/login");
-        })
-        .catch((err) => {
-          if (err.response.data.username)
-            errorMessage(err.response.data.username);
-          else errorMessage(err.response.data.email);
-        });
-    } else {
-      setIsLoading(true);
-      login(formData.email, formData.password)
-        .then((res) => {
-          successMessage("Welcome!");
-          dispatch(handleLogin());
-          localStorage.setItem("access_token", res.data.access);
-          localStorage.setItem("refresh_token", res.data.refresh);
-          navigate("/");
-        })
-        .catch((err) => errorMessage(err.response.data.error));
+    setIsLoading(true);
+    try {
+      if (locationRegister) {
+        setIsLoading(true);
+        regist(
+          formData.name,
+          formData.surname,
+          formData.email,
+          formData.password
+        )
+          .then((res) => {
+            successMessage(res.data.message);
+            navigate("/login");
+          })
+          .catch((err) => {
+            if (err.response.data.username)
+              errorMessage(err.response.data.username);
+            else errorMessage(err.response.data.email);
+          });
+      } else {
+        setIsLoading(true);
+        login(formData.email, formData.password)
+          .then((res) => {
+            successMessage("Welcome!");
+            dispatch(handleLogin());
+            localStorage.setItem("access_token", res.data.access);
+            localStorage.setItem("refresh_token", res.data.refresh);
+            navigate("/");
+          })
+          .catch((err) => errorMessage(err.response.data.error));
+      }
+    } catch (err: any) {
+      if (err.response.data.username) {
+        errorMessage(err.response.data.username);
+      } else {
+        errorMessage(err.response.data.error);
+      }
+    } finally {
+      setIsLoading(false); // Ensure loading state is reset
     }
-    setIsLoading(false);
   };
 
   if (locationRegister) {

@@ -46,6 +46,7 @@ export const Notes = () => {
           results: res.data.results,
           total_count: res.data.total_count,
         });
+        console.log(res);
       })
       .catch((err) => errorMessage(err.response.data));
   };

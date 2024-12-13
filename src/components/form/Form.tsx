@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { ErrorOutline } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 import { FormControlLabel, Checkbox, FormControl } from "@mui/material";
 import { Heading } from "../ui/Heading";
 import classes from "./Form.module.scss";
@@ -10,7 +11,7 @@ import { createNote } from "../../apis/notes";
 
 type Inputs = {
   readonly title: string;
-  readonly description: string;
+  readonly text: string;
 };
 
 export const Form = () => {
@@ -21,11 +22,11 @@ export const Form = () => {
   } = useForm<Inputs>();
 
   const [isFavourite, setIsFavourite] = useState(true);
-
   const [recording, setRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const navigate = useNavigate();
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -63,14 +64,12 @@ export const Form = () => {
       }
     }
   };
-
   const stopRecording = () => {
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
       setRecording(false);
     }
   };
-
   const remakeRecording = () => {
     if (recording) {
       stopRecording();
@@ -79,7 +78,6 @@ export const Form = () => {
     setAudioBlob(null);
     audioChunksRef.current = [];
   };
-
   const onSubmitForm: SubmitHandler<Inputs> = async (data) => {
     const formData = new FormData();
 
@@ -89,17 +87,25 @@ export const Form = () => {
     if (audioBlob) {
       formData.append("audio", audioBlob, "recording.wav");
     }
-
+    const now = new Date();
+    const formattedDate = `${now.getFullYear()}-${String(
+      now.getMonth() + 1
+    ).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")} ${String(
+      now.getHours()
+    ).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(
+      now.getSeconds()
+    ).padStart(2, "0")}`;
+    formData.append("create_date", formattedDate);
+    formData.append("update_date", formattedDate);
     try {
       createNote(formData)
-        .then((res) => console.log(res.data))
+        .then((res) => navigate("/notes"))
         .catch((err) => console.log(err.response));
     } catch (error) {
       console.error("Error during submission:", error);
       errorMessage("An unexpected error occurred. Please try again.");
     }
   };
-
   return (
     <div className={classes.formWrapper}>
       <form className={classes.form}>
@@ -123,19 +129,18 @@ export const Form = () => {
             </span>
           )}
         </div>
-
         <div className={classes.formControl}>
-          <label htmlFor="description">Description</label>
+          <label htmlFor="text">Description</label>
           <textarea
             placeholder="Description"
-            id="description"
-            {...register("description", {
+            id="text"
+            {...register("text", {
               required: true,
               minLength: 10,
               maxLength: 1000,
             })}
           />
-          {errors.description && (
+          {errors.text && (
             <span className={classes.errorMessage}>
               <ErrorOutline /> Description is required
             </span>
@@ -184,7 +189,6 @@ export const Form = () => {
             </audio>
           )}
         </div>
-
         <button type="submit" onClick={handleSubmit(onSubmitForm)}>
           Create new note
         </button>

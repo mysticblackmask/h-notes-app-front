@@ -29,14 +29,12 @@ const getTheme = () => {
     localTheme: theme ? JSON.parse(theme) : null,
   };
 };
-
 interface navLinkDataType {
   title: string;
   url: string;
   length?: number;
   icon: JSX.Element;
 }
-
 export const Nav = () => {
   const id = useLocation();
   const [hiddenNav, setHiddenNav] = useToggle();

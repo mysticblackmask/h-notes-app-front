@@ -16,9 +16,15 @@ export const SingleNoteItem = () => {
   const [newTitle, setNewTitle] = useState<string>("");
   const [newDescription, setNewDescription] = useState<string>("");
   const [newFavourite, setNewFavourite] = useState<boolean>(false);
+  const [audioUrl, setAudioUrl] = useState("");
   useEffect(() => {
     if (noteId) {
-      detailNote(noteId).then((res) => setNote(res.data));
+      detailNote(noteId).then((res) => {
+        setNote(res.data);
+        setAudioUrl(
+          `http://localhost:8000/media/notes/audio/recording_cmG9dZi.wav`
+        );
+      });
     }
   }, [noteId]);
   const navigate = useNavigate();
@@ -53,7 +59,7 @@ export const SingleNoteItem = () => {
       console.log(err);
     }
   };
-
+  console.log(audio);
   return (
     <div className={classes.detailPageWrapper}>
       <div>
@@ -100,7 +106,14 @@ export const SingleNoteItem = () => {
               />
               <div>
                 <p>Recorded Audio:</p>
-                <audio controls src="" />
+                {audioUrl && (
+                  <audio controls>
+                    <source
+                      src="http://127.0.0.1:8000/media/notes/audio/recording_cmG9dZi.wav"
+                      type="audio/mpeg"
+                    />
+                  </audio>
+                )}
               </div>
               <div className={classes.buttons}>
                 <SecondaryButton
@@ -135,7 +148,14 @@ export const SingleNoteItem = () => {
               </div>
               <div>
                 <p>Recorded Audio:</p>
-                <audio controls src="" />
+                {audioUrl && (
+                  <audio controls>
+                    <source
+                      src="http://127.0.0.1:8000/media/notes/audio/recording_cmG9dZi.wav"
+                      type="audio/mpeg"
+                    />
+                  </audio>
+                )}
               </div>
               <div className={classes.buttons}>
                 <MainButton

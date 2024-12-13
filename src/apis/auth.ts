@@ -10,7 +10,7 @@ export const login = (email: string, password: string) => {
 
 export const refreshToken = () => {
   const refresh = localStorage.getItem("refresh_token");
-  if (!refresh) throw new Error("No refresh token available");
+  if (!refresh) return;
   localStorage.removeItem("access_token");
   API.post<{ access: string; refresh: string }>("/notesapp/gettoken/", {
     refresh,
