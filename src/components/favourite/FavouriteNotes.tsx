@@ -1,5 +1,4 @@
-import { useContext } from "react";
-import { NotesContext } from "../../context/NoteContext";
+import { useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import classes from "../notes/Notes.module.scss";
 import { Link } from "react-router-dom";
@@ -7,9 +6,26 @@ import { MainButton } from "../ui/MainButton";
 import empty from "../../img/favourite.svg";
 import { FavouriteNoteItem } from "./FavouriteNoteItem";
 import { Heading } from "../ui/Heading";
+import { pinNote, pinNotes } from "../../apis/notes";
 
 export const FavouriteNotes = () => {
-  const { favouriteNotes } = useContext(NotesContext);
+  const [notes, setNotes] = useState({ results: [], total_count: 0 });
+
+  const readNotes = () => {
+    pinNotes(0, true)
+      .then((res) => setNotes(res.data))
+      .catch((err) => console.log(err.response));
+  };
+
+  useEffect(() => {
+    readNotes();
+  }, []);
+
+  const notePinned = (id: string) => {
+    pinNote(id, false)
+      .then((res) => readNotes())
+      .catch((err) => console.log(err.response));
+  };
 
   const emptyContent = (
     <div className={classes.emptyWrapper}>
@@ -17,7 +33,7 @@ export const FavouriteNotes = () => {
       <h3 className={classes.empty}>Trash is empty</h3>
 
       <div className={classes.buttons}>
-        {favouriteNotes.length ? (
+        {notes.results.length ? (
           <Link to="/notes">
             <MainButton title="Check notes" />
           </Link>
@@ -32,28 +48,28 @@ export const FavouriteNotes = () => {
     <div className={classes.notesModules}>
       <div className={classes.header}>
         <Heading title="Favourite notes">
-          <span className={classes.favorite}>{favouriteNotes.length}</span>
+          <span className={classes.favorite}>{notes.results.length}</span>
         </Heading>
       </div>
 
       <ul className={classes.list}>
         <AnimatePresence>
-          {favouriteNotes.map((note) => {
+          {notes.results.map((note: any, index: number) => {
             return (
               <FavouriteNoteItem
-                key={note.id}
-                note={note}
-                favourite={note.favourite}
+                key={index}
+                id={note.noteid}
                 title={note.title}
-                category={note.category}
-                description={note.description}
+                description={note.text}
+                notePinned={notePinned}
+                favourite={note.is_pinned}
               />
             );
           })}
         </AnimatePresence>
       </ul>
 
-      {!favouriteNotes.length && emptyContent}
+      {!notes.results.length && emptyContent}
     </div>
   );
 };
