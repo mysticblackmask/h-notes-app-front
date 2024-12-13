@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, SubmitHandler } from "react-hook-form";
 import classes from "./AuthForm.module.scss";
@@ -34,7 +34,6 @@ export const AuthForm = () => {
   const [isHiddenPassword, setIsHiddenPassword] = useState(true);
   const locationRegister = location.pathname === "/register";
   const [isLoading, setIsLoading] = useState(false);
-  let url = locationRegister ? "/notesapp/register/" : "/notesapp/login/";
   const dispatch = useDispatch();
 
   const submitRegister: SubmitHandler<Inputs> = (formData) => {
@@ -42,7 +41,7 @@ export const AuthForm = () => {
       setIsLoading(true);
       regist(formData.name, formData.surname, formData.email, formData.password)
         .then((res) => {
-          alert(res.data.message);
+          successMessage(res.data.message);
           navigate("/login");
         })
         .catch((err) => {
