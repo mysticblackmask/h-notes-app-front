@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from "react";
+import React, { Suspense } from "react";
 import {
   Route,
   createBrowserRouter,
@@ -7,8 +7,6 @@ import {
 } from "react-router-dom";
 import RootLayout from "./pages/home/RootLayout";
 import { ErrorPage } from "./pages/error/ErrorPage";
-import { NotesContextProvider } from "./context/NoteContext";
-import { AuthContextProvider } from "./context/AuthContext";
 import { ProgressBar } from "./components/ui/Progressbar";
 import HomePage from "./pages/home/HomePage";
 import CreateLayout from "./pages/notes/CreatePage";
@@ -18,13 +16,8 @@ import DetailNoteLayout from "./pages/notes/DetailNotePage";
 import FavouritePage from "./pages/notes/FavouritePage";
 import LoginLayout from "./pages/auth/LoginPage";
 import RegisterLayout from "./pages/auth/RegisterPage";
-import { useSelector } from "react-redux";
-import { RootState } from "./store/store";
 
 const App = () => {
-  const is_login = useSelector(
-    (state: RootState) => state.auth.isAuthenticated
-  );
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route path="/" element={<RootLayout />} errorElement={<ErrorPage />}>
@@ -41,13 +34,9 @@ const App = () => {
   );
 
   return (
-    <AuthContextProvider>
-      <NotesContextProvider>
-        <Suspense fallback={<ProgressBar />}>
-          <RouterProvider router={router} />
-        </Suspense>
-      </NotesContextProvider>
-    </AuthContextProvider>
+    <Suspense fallback={<ProgressBar />}>
+      <RouterProvider router={router} />
+    </Suspense>
   );
 };
 
