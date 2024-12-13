@@ -1,9 +1,8 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { NoteItem } from "./NoteItem";
 import { AnimatePresence } from "framer-motion";
 import classes from "./Notes.module.scss";
 import empty from "../../img/empty.svg";
-import { NotesContext } from "../../context/NoteContext";
 import { NotePagination } from "../pagination/Pagination";
 import { Link } from "react-router-dom";
 import { MainButton } from "../ui/MainButton";
@@ -11,13 +10,13 @@ import { Heading } from "../ui/Heading";
 import { SecondaryButton } from "../ui/SecondaryButton";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { readNotes } from "../../apis/notes";
-import { errorMessage } from "../../constants/notify";
+import { readNotes, trashedNote, trashedNotes } from "../../apis/notes";
+import { errorMessage, successMessage } from "../../constants/notify";
 
 interface noteType {
   title: string;
   text: string;
-  noteid: number;
+  noteid: string;
   is_pinned: boolean;
   is_trashed: boolean;
   audio: any;
@@ -33,7 +32,6 @@ export interface noteDataType {
 }
 
 export const Notes = () => {
-  // const { notes, trashNotes, removeAll } = useContext(NotesContext);
   const [currentPage, setCurrentPage] = useState(1);
   const [notesPerPage] = useState(4);
   const [notes, setNotes] = useState<noteDataType>({
@@ -41,19 +39,20 @@ export const Notes = () => {
     total_count: 0,
   });
 
-  const paginate = (event: React.ChangeEvent<unknown>, pageNumber: number) =>
-    setCurrentPage(pageNumber);
-  useEffect(() => {
-    console.log(currentPage);
+  const ReadNotes = () => {
     readNotes(currentPage, false)
       .then((res) => {
-        console.log(res);
         setNotes({
           results: res.data.results,
           total_count: res.data.total_count,
         });
       })
       .catch((err) => errorMessage(err.response.data));
+  };
+  const paginate = (event: React.ChangeEvent<unknown>, pageNumber: number) =>
+    setCurrentPage(pageNumber);
+  useEffect(() => {
+    ReadNotes();
   }, [currentPage]);
   const emptyContent = (
     <div className={classes.emptyWrapper}>
@@ -68,12 +67,34 @@ export const Notes = () => {
     </div>
   );
 
+  const noteTrashed = (id: string) => {
+    trashedNote(id, true)
+      .then((res) => {
+        ReadNotes();
+      })
+      .catch((err) => console.log(err.response.data));
+  };
+
+  const trashedAll = () => {
+    successMessage("All Trashed");
+    trashedNotes()
+      .then((res) => {
+        ReadNotes();
+      })
+      .catch((err) => console.log(err.response.data));
+  };
+
   return (
     <div className={classes.notesModules}>
       <div className={classes.header}>
         <Heading title="Notes">
           <span className={classes.notesLength}>{notes.total_count}</span>
         </Heading>
+        {notes.results.length > 0 ? (
+          <div className={classes.buttons}>
+            <MainButton title="Trash all" onClick={trashedAll} />
+          </div>
+        ) : null}
       </div>
 
       <AnimatePresence>
@@ -85,6 +106,7 @@ export const Notes = () => {
                 key={note.noteid}
                 title={note.title}
                 text={note.text}
+                trashed={noteTrashed}
                 favourite={note.is_pinned}
               />
             );

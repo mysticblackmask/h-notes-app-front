@@ -1,48 +1,37 @@
-import { useContext, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import classes from "./NoteItem.module.scss";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
-import { NotesContext } from "../../context/NoteContext";
-import { Note } from "../../types/NoteType";
 import { SingleNoteDetails } from "./SingleNoteDetails";
-import { getFullDate } from "../../constants/fullDate";
 import { MainButton } from "../ui/MainButton";
 import { SecondaryButton } from "../ui/SecondaryButton";
 import { Heading } from "../ui/Heading";
-import { ProfileLink } from "../ui/ProfileLink";
+import { detailNote } from "../../apis/notes";
 
 export const SingleNoteItem = () => {
-  const { notes, updateNote } = useContext(NotesContext);
   const [isEditing, setIsEditing] = useState(false);
-  const { fullDate } = getFullDate();
+  const [note, setNote] = useState();
   const { noteId } = useParams();
+  const [newTitle, setNewTitle] = useState<string>("");
+  const [newDescription, setNewDescription] = useState<string>("");
+  const [newFavourite, setNewFavourite] = useState<boolean>(false);
+  useEffect(() => {
+    if (noteId) {
+      detailNote(noteId).then((res) => setNote(res.data));
+    }
+  }, [noteId]);
   const navigate = useNavigate();
-  const note: Note | any = notes.find((note) => note.id === noteId);
-
-  const {
-    title: NoteTitle,
-    category: NoteCategory,
-    description: NoteDescription,
-    favourite: NoteFavourite,
-    date: NoteDate,
-    editHistory: NoteHistory,
-  } = note || {};
-
-  const [newTitle, setNewTitle] = useState(NoteTitle);
-  const [newCategory, setNewCategory] = useState(NoteCategory);
-  const [newDescription, setNewDescription] = useState(NoteDescription);
-  const [newFavourite, setNewFavourite] = useState(NoteFavourite);
-  const [newDate] = useState(NoteDate);
+  if (!note) {
+    return <div>Loading</div>;
+  }
+  const { title, text, user, is_pinned, create_date, update_date, audio } =
+    note || {};
 
   const theSameData =
-    newTitle === NoteTitle &&
-    newCategory === NoteCategory &&
-    newDescription === NoteDescription &&
-    newFavourite === NoteFavourite;
+    newTitle === title && newDescription === text && newFavourite === is_pinned;
 
-  const allInputsIsValid =
-    newTitle && newCategory && newDescription && !theSameData;
+  const allInputsIsValid = newTitle && newDescription && !theSameData;
 
   const submitNewNoteDataHandler = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,19 +40,14 @@ export const SingleNoteItem = () => {
       return;
     }
 
-    const NoteObj: Note = {
+    const NoteObj = {
       id: noteId,
       title: newTitle,
-      category: newCategory,
       description: newDescription,
       favourite: newFavourite,
-      date: newDate,
-      descLength: newDescription.length,
-      editHistory: [{ date: fullDate }],
     };
 
     try {
-      updateNote(NoteObj);
       setIsEditing(false);
     } catch (err) {
       console.log(err);
@@ -84,11 +68,10 @@ export const SingleNoteItem = () => {
               <div className={classes.header}>
                 <label htmlFor="title">Title</label>
                 <input
-                  defaultValue={NoteTitle}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setNewTitle(e.target.value)
-                  }
+                  defaultValue={title}
+                  onChange={(e) => setNewTitle(e.target.value)}
                   autoComplete="off"
+                  value={newTitle}
                   id="title"
                   placeholder="New Title"
                 />
@@ -97,22 +80,20 @@ export const SingleNoteItem = () => {
                 <div className={classes.contentParams}>
                   <label htmlFor="description">Description</label>
                   <textarea
+                    defaultValue={text}
                     placeholder="Description"
                     id="description"
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                      setNewDescription(e.target.value)
-                    }
-                    defaultValue={NoteDescription}
+                    onChange={(e) => setNewDescription(e.target.value)}
+                    value={newDescription}
                   />
                 </div>
               </div>
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={newFavourite}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setNewFavourite(e.target.checked)
-                    }
+                    checked={is_pinned}
+                    value={newFavourite}
+                    onChange={(e) => setNewFavourite(e.target.checked)}
                   />
                 }
                 label={newFavourite ? "Is favourite" : "Not favourite"}
@@ -141,16 +122,15 @@ export const SingleNoteItem = () => {
           ) : (
             <>
               <div className={classes.header}>
-                <ProfileLink />
                 <div className={classes.headerTitle}>
                   <p>Title</p>
-                  <h2>{newTitle}</h2>
+                  <h2>{title}</h2>
                 </div>
               </div>
               <div className={classes.content}>
                 <div className={classes.contentParams}>
                   <p>Description</p>
-                  <h3>{newDescription}</h3>
+                  <h3>{text}</h3>
                 </div>
               </div>
               <div>
@@ -174,10 +154,10 @@ export const SingleNoteItem = () => {
         </li>
       </div>
       <SingleNoteDetails
-        editHistory={NoteHistory}
-        favourite={newFavourite}
-        date={newDate}
         id={noteId}
+        user={user}
+        update={update_date}
+        create={create_date}
       />
     </div>
   );

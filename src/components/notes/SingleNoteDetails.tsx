@@ -1,23 +1,19 @@
-import React from "react";
-import { Link } from "react-router-dom";
 import classes from "./NoteItem.module.scss";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { EditHistory } from "../../types/EditHistoryType";
 import { Heading } from "../ui/Heading";
-import { ProfileLink } from "../ui/ProfileLink";
 
 type noteDetailsType = {
   id: string | undefined;
-  date: string;
-  favourite: boolean;
-  editHistory: EditHistory[];
+  update: string;
+  create: string;
+  user: string;
 };
 
 export const SingleNoteDetails = ({
-  date,
   id,
-  favourite,
-  editHistory,
+  create,
+  update,
+  user,
 }: noteDetailsType) => {
   return (
     <div className={classes.details}>
@@ -25,28 +21,25 @@ export const SingleNoteDetails = ({
       <div className={classes.noteDetailsWrapper}>
         <div className={classes.detailsControls}>
           <h3>Last edit</h3>
-          {editHistory ? (
+          {create === update ? (
+            <p>This note hasn't been edited</p>
+          ) : (
             <ul className={classes.historyList}>
-              {editHistory.map((item, index) => (
-                <Link key={index} to={`/notes/${id}/lastEdit`}>
-                  <li className={classes.historyItem} key={item.date}>
-                    {item.date} <ArrowForwardIcon className={classes.icon} />
-                  </li>
-                </Link>
-              ))}
+              <li className={classes.historyItem}>
+                {update} <ArrowForwardIcon className={classes.icon} />
+              </li>
             </ul>
-          ) : null}
-          {!editHistory.length && <p>This note hasn't been edited</p>}
+          )}
         </div>
 
         <div className={classes.detailsControls}>
           <h3>Date of create</h3>
-          <p>{date}</p>
+          <p>{create}</p>
         </div>
 
         <div className={classes.detailsControls}>
           <h3>Author</h3>
-          <ProfileLink />
+          <p>{user}</p>
         </div>
       </div>
     </div>
